@@ -1,15 +1,39 @@
+using API.DTOs;
 using API.Entities;
 using API.Interfaces;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
 public class UsersRepository : IUserRepository
 {
     private readonly DataContext _context;
-    public UsersRepository(DataContext context)
+    private readonly IMapper _mapper;
+    public UsersRepository(DataContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
+
+    public async Task<MemberDto> GetMemberAsync(string username)
+    {
+        return await _context.Users
+            .Where(x => x.UserName == username)
+            .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+            .SingleOrDefaultAsync();
+    }
+
+    public Task<MemberDto> GetMemberAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<MemberDto>> GetMembersAsync()
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<AppUser> GetUserByIdAsync(int id)
     {
         return await _context.Users.FindAsync(id);
